@@ -543,94 +543,6 @@ section { position: relative; z-index: 1; }
   margin-top: 0.15rem;
 }
 
-/* ── GitHub repos ── */
-#github { padding: 7rem 0; border-top: 1px solid var(--border); }
-
-.repos-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: var(--border);
-  margin-top: 2.5rem;
-}
-
-.repo-card {
-  background: var(--bg);
-  padding: 1.75rem;
-  text-decoration: none;
-  color: inherit;
-  transition: background 0.2s;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  position: relative;
-}
-
-.repo-card:hover { background: var(--bg-card); }
-
-.repo-card:hover .repo-arrow { opacity: 1; transform: translate(2px,-2px); }
-
-.repo-arrow {
-  position: absolute;
-  top: 1.25rem; right: 1.25rem;
-  color: var(--accent);
-  font-family: var(--mono);
-  font-size: 0.8rem;
-  opacity: 0;
-  transition: opacity 0.2s, transform 0.2s;
-}
-
-.repo-name {
-  font-family: var(--mono);
-  font-size: 0.82rem;
-  color: var(--accent);
-  font-weight: 600;
-  padding-right: 1.5rem;
-}
-
-.repo-desc { font-size: 0.78rem; color: var(--fg-muted); line-height: 1.55; flex: 1; }
-
-.repo-meta {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-top: 0.25rem;
-}
-
-.repo-lang {
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  color: var(--fg-muted);
-  letter-spacing: 0.08em;
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.repo-lang::before {
-  content: '';
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--accent);
-  opacity: 0.6;
-}
-
-.repo-stars {
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  color: var(--fg-muted);
-  letter-spacing: 0.06em;
-}
-
-.repos-loading {
-  grid-column: 1/-1;
-  padding: 3rem;
-  text-align: center;
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  color: var(--fg-muted);
-  letter-spacing: 0.1em;
-}
 
 /* ── Skills ── */
 #skills { padding: 7rem 0; border-top: 1px solid var(--border); }
@@ -853,7 +765,6 @@ footer p { font-family: var(--mono); font-size: 0.62rem; color: var(--fg-muted);
 /* ── Parallax perf: contain sections so they form opaque layers over hero ── */
 #accomplishments,
 #projects,
-#github,
 #experience,
 #skills,
 #contact,
@@ -875,7 +786,6 @@ footer {
 @media (max-width: 900px) {
   .nav-links { display: none; }
   .skills-layout, .contact-layout { grid-template-columns: 1fr; gap: 2.5rem; }
-  .repos-grid { grid-template-columns: 1fr 1fr; }
   .acc-grid { grid-template-columns: 1fr; }
   .form-row { grid-template-columns: 1fr; }
   .project-card { grid-template-columns: 2rem 1fr; }
@@ -885,7 +795,6 @@ footer {
 }
 
 @media (max-width: 600px) {
-  .repos-grid { grid-template-columns: 1fr; }
   .hero-stats { flex-direction: column; }
   .stat { border-right: none; border-bottom: 1px solid var(--border); }
 }
@@ -903,7 +812,6 @@ footer {
   <ul class="nav-links">
     <li><a href="#accomplishments">Awards</a></li>
     <li><a href="#projects">Projects</a></li>
-    <li><a href="#github">GitHub</a></li>
     <li><a href="#experience">Experience</a></li>
     <li><a href="#skills">Skills</a></li>
     <li><a href="#contact">Contact</a></li>
@@ -1132,15 +1040,6 @@ footer {
   </div>
 </section>
 
-<!-- ── GitHub Repos ── -->
-<section id="github">
-  <div class="section-inner">
-    <p class="section-label reveal">GitHub · <a href="https://github.com/itamaramsalem" target="_blank" style="color:var(--accent);text-decoration:none;font-size:0.62rem;letter-spacing:0.1em">github.com/itamaramsalem ↗</a></p>
-    <div class="repos-grid reveal" id="repos-grid">
-      <div class="repos-loading">fetching repos<span id="dots">...</span></div>
-    </div>
-  </div>
-</section>
 
 <!-- ── Experience ── -->
 <section id="experience" style="padding:7rem 0;border-top:1px solid var(--border);">
@@ -1414,59 +1313,6 @@ window.addEventListener('scroll', () => {
   });
 }, { passive: true });
 
-// ── GitHub repos ──
-async function fetchRepos() {
-  const dotsEl = document.getElementById('dots');
-  let d = 0;
-  const dotsInterval = setInterval(() => {
-    d = (d + 1) % 4;
-    if (dotsEl) dotsEl.textContent = '.'.repeat(d || 1);
-  }, 400);
-
-  try {
-    const res = await fetch('https://api.github.com/users/itamaramsalem/repos?sort=updated&per_page=9');
-    clearInterval(dotsInterval);
-    if (!res.ok) throw new Error('API error');
-    const repos = await res.json();
-    const grid = document.getElementById('repos-grid');
-    grid.innerHTML = '';
-
-    const langColors = {
-      Python: '#3572A5', JavaScript: '#f1e05a', TypeScript: '#3178c6',
-      Java: '#b07219', C: '#555555', HTML: '#e34c26', Rust: '#dea584'
-    };
-
-    const filtered = repos.filter(r => !r.fork).slice(0, 9);
-    if (!filtered.length) {
-      grid.innerHTML = '<div class="repos-loading">No public repos found.</div>';
-      return;
-    }
-
-    filtered.forEach(repo => {
-      const langColor = repo.language ? (langColors[repo.language] || '#00ff88') : '#5a6b60';
-      const card = document.createElement('a');
-      card.href = repo.html_url;
-      card.target = '_blank';
-      card.className = 'repo-card';
-      card.innerHTML = `
-        <span class="repo-arrow">↗</span>
-        <div class="repo-name">${repo.name}</div>
-        <div class="repo-desc">${repo.description || 'No description'}</div>
-        <div class="repo-meta">
-          ${repo.language ? `<span class="repo-lang" style="--lc:${langColor}">${repo.language}</span>` : ''}
-          ${repo.stargazers_count > 0 ? `<span class="repo-stars">★ ${repo.stargazers_count}</span>` : ''}
-          <span class="repo-stars" style="margin-left:auto">${repo.updated_at ? new Date(repo.updated_at).toLocaleDateString('en-US',{month:'short',year:'numeric'}) : ''}</span>
-        </div>
-      `;
-      grid.appendChild(card);
-    });
-  } catch (err) {
-    clearInterval(dotsInterval);
-    document.getElementById('repos-grid').innerHTML = '<div class="repos-loading" style="color:var(--fg-muted)">Could not load repos — <a href="https://github.com/itamaramsalem" target="_blank" style="color:var(--accent)">view on GitHub ↗</a></div>';
-  }
-}
-
-fetchRepos();
 
 // ── Contact form ──
 function handleSubmit() {
@@ -1489,15 +1335,6 @@ function handleSubmit() {
   }, 800);
 }
 
-// ── Dots animation ──
-const dotsEl = document.getElementById('dots');
-if (dotsEl) {
-  let n = 0;
-  setInterval(() => {
-    n = (n+1)%4;
-    dotsEl.textContent = '.'.repeat(n||1);
-  }, 400);
-}
 </script>
 
 <script>
