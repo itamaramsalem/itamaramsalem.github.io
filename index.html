@@ -1,0 +1,1697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Itamar Amsalem</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --accent: #00ff88;
+  --accent-2: #00d4ff;
+  --accent-dim: #00994d;
+  --accent-glow: rgba(0,255,136,0.12);
+  --accent-glow-2: rgba(0,255,136,0.06);
+  --bg: #080a09;
+  --bg-card: #0e110f;
+  --bg-elevated: #141917;
+  --fg-1: #e8f0eb;
+  --fg-2: #9fb5a5;
+  --fg-muted: #5a6b60;
+  --border: #1a211c;
+  --border-strong: #253029;
+  --mono: 'JetBrains Mono', monospace;
+  --serif: 'Fraunces', Georgia, serif;
+  --sans: 'Inter', system-ui, sans-serif;
+  --nav-h: 3.5rem;
+  --ease: cubic-bezier(0.16,1,0.3,1);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--fg-1);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border-strong); }
+
+/* ── Canvas grid bg ── */
+#grid-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+/* ── Glow orbs ── */
+.orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+.orb-1 { width: 500px; height: 500px; background: rgba(0,255,136,0.04); top: -100px; left: -100px; }
+.orb-2 { width: 400px; height: 400px; background: rgba(0,212,255,0.03); bottom: 200px; right: -100px; }
+
+/* ── Nav ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--nav-h);
+  background: color-mix(in srgb, var(--bg) 80%, transparent);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2.5rem;
+  z-index: 100;
+}
+
+.nav-brand {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--accent);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.nav-brand::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.nav-links { display: flex; gap: 2.5rem; list-style: none; }
+
+.nav-links a {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+  position: relative;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; left: 0; right: 0;
+  height: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transition: transform 0.2s var(--ease);
+}
+
+.nav-links a:hover { color: var(--accent); }
+.nav-links a:hover::after { transform: scaleX(1); }
+.nav-links a.active { color: var(--fg-1); }
+
+/* ── Section base ── */
+section { position: relative; z-index: 1; }
+.section-inner { max-width: 72rem; margin: 0 auto; padding: 0 2.5rem; }
+
+.section-label {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.section-label::before { content: '//'; color: var(--fg-muted); }
+
+/* ── Hero ── */
+#hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding-top: var(--nav-h);
+  position: sticky;
+  top: 0;
+  z-index: 0; /* sections (z-index:1) slide over this */
+}
+
+.hero-inner { max-width: 72rem; margin: 0 auto; padding: 5rem 2.5rem 4rem; }
+
+.hero-top {
+  display: flex;
+  align-items: center;
+  gap: 5rem;
+}
+
+.hero-text { flex: 1; min-width: 0; }
+
+.hero-photo-wrap {
+  flex-shrink: 0;
+  opacity: 0;
+  animation: fadeUp 0.8s var(--ease) 0.3s forwards;
+}
+
+.hero-photo-frame {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  padding: 4px;
+  background: var(--bg-card);
+  box-shadow: 0 0 0 1px var(--border), 0 0 40px rgba(0,255,136,0.08);
+  position: relative;
+}
+
+.hero-photo-frame::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: conic-gradient(from 180deg, var(--accent), transparent 40%, transparent 60%, var(--accent-2), transparent 80%);
+  opacity: 0.35;
+  z-index: -1;
+}
+
+.hero-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+  filter: grayscale(15%);
+  transition: filter 0.3s;
+}
+
+.hero-photo-frame:hover .hero-photo { filter: grayscale(0%); }
+
+.hero-prompt {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--fg-muted);
+  margin-bottom: 2rem;
+  opacity: 0;
+  animation: fadeUp 0.5s var(--ease) 0.1s forwards;
+}
+
+.hero-prompt .prompt-char { color: var(--accent); }
+
+.hero-name {
+  font-family: var(--serif);
+  font-size: clamp(4rem, 9vw, 7.5rem);
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+  font-weight: 600;
+  margin-bottom: 1.75rem;
+  opacity: 0;
+  animation: fadeUp 0.7s var(--ease) 0.25s forwards;
+}
+
+.hero-name .line-2 {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--fg-muted);
+}
+
+.hero-tagline {
+  font-family: var(--serif);
+  font-size: clamp(1.1rem, 2.2vw, 1.6rem);
+  color: var(--fg-2);
+  font-weight: 300;
+  margin-bottom: 1.25rem;
+  opacity: 0;
+  animation: fadeUp 0.7s var(--ease) 0.4s forwards;
+}
+
+.hero-tagline .glow {
+  color: var(--accent);
+  text-shadow: 0 0 20px var(--accent-glow);
+}
+
+.hero-desc {
+  max-width: 38rem;
+  color: var(--fg-muted);
+  font-size: 0.875rem;
+  line-height: 1.75;
+  margin-bottom: 3rem;
+  opacity: 0;
+  animation: fadeUp 0.7s var(--ease) 0.55s forwards;
+}
+
+.hero-ctas {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeUp 0.7s var(--ease) 0.7s forwards;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.6rem;
+  background: var(--accent);
+  color: #030804;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1px solid var(--accent);
+  cursor: pointer;
+  transition: box-shadow 0.25s, opacity 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 0 30px rgba(0,255,136,0.35), 0 0 60px rgba(0,255,136,0.1);
+  opacity: 0.9;
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.6rem;
+  background: transparent;
+  color: var(--fg-2);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1px solid var(--border-strong);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.btn-ghost:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-glow-2);
+}
+
+/* ── Hero stats bar ── */
+.hero-stats {
+  display: flex;
+  gap: 0;
+  margin-top: 4.5rem;
+  border: 1px solid var(--border);
+  opacity: 0;
+  animation: fadeUp 0.7s var(--ease) 0.85s forwards;
+  background: var(--bg-card);
+}
+
+.stat {
+  flex: 1;
+  padding: 1.5rem 2rem;
+  border-right: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat:last-child { border-right: none; }
+
+.stat::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.stat:hover::before { opacity: 1; }
+
+.stat-val {
+  font-family: var(--mono);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+  text-shadow: 0 0 20px rgba(0,255,136,0.3);
+  margin-bottom: 0.4rem;
+}
+
+.stat-label {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+/* ── Accomplishments ── */
+#accomplishments { padding: 7rem 0; border-top: 1px solid var(--border); }
+
+.acc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  margin-top: 2.5rem;
+}
+
+.acc-card {
+  background: var(--bg);
+  padding: 2.5rem 2.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.2s;
+}
+
+.acc-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px;
+  height: 100%;
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.acc-card:hover { background: var(--bg-card); }
+
+.acc-rank {
+  font-family: var(--mono);
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+  text-shadow: 0 0 30px rgba(0,255,136,0.4);
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.04em;
+}
+
+.acc-title {
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.4rem;
+}
+
+.acc-event {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+
+.acc-desc { font-size: 0.82rem; color: var(--fg-muted); line-height: 1.65; }
+
+.acc-sponsors {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1.25rem;
+}
+
+.sponsor-tag {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--border-strong);
+  color: var(--fg-muted);
+}
+
+/* ── Projects ── */
+#projects { padding: 7rem 0; border-top: 1px solid var(--border); }
+
+.projects-list { display: flex; flex-direction: column; gap: 1px; background: var(--border); margin-top: 2.5rem; }
+
+.project-card {
+  background: var(--bg);
+  display: grid;
+  grid-template-columns: 3.5rem 1fr auto;
+  gap: 0 2.5rem;
+  align-items: start;
+  padding: 2.5rem;
+  cursor: default;
+  transition: background 0.2s;
+  position: relative;
+}
+
+.project-card:hover { background: var(--bg-card); }
+
+.project-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 2.5rem; right: 2.5rem;
+  height: 0;
+}
+
+.project-num {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--fg-muted);
+  letter-spacing: 0.1em;
+  padding-top: 0.25rem;
+}
+
+.project-main { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.project-header { display: flex; align-items: baseline; gap: 1.25rem; flex-wrap: wrap; }
+
+.project-name {
+  font-family: var(--serif);
+  font-size: 1.6rem;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+
+.project-badge {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.65rem;
+  border: 1px solid rgba(0,255,136,0.35);
+  color: var(--accent);
+  background: rgba(0,255,136,0.05);
+}
+
+.project-context {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--fg-muted);
+  letter-spacing: 0.06em;
+}
+
+.project-desc { font-size: 0.855rem; color: var(--fg-2); line-height: 1.7; max-width: 54rem; }
+
+.project-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+.tag {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--border-strong);
+  color: var(--fg-muted);
+}
+
+.project-metrics-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  align-items: flex-end;
+  padding-top: 0.25rem;
+  min-width: 9rem;
+}
+
+.metric-block { text-align: right; }
+
+.metric-val {
+  font-family: var(--mono);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-shadow: 0 0 12px rgba(0,255,136,0.3);
+}
+
+.metric-label {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  margin-top: 0.15rem;
+}
+
+/* ── GitHub repos ── */
+#github { padding: 7rem 0; border-top: 1px solid var(--border); }
+
+.repos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  margin-top: 2.5rem;
+}
+
+.repo-card {
+  background: var(--bg);
+  padding: 1.75rem;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  position: relative;
+}
+
+.repo-card:hover { background: var(--bg-card); }
+
+.repo-card:hover .repo-arrow { opacity: 1; transform: translate(2px,-2px); }
+
+.repo-arrow {
+  position: absolute;
+  top: 1.25rem; right: 1.25rem;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.repo-name {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--accent);
+  font-weight: 600;
+  padding-right: 1.5rem;
+}
+
+.repo-desc { font-size: 0.78rem; color: var(--fg-muted); line-height: 1.55; flex: 1; }
+
+.repo-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.25rem;
+}
+
+.repo-lang {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--fg-muted);
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.repo-lang::before {
+  content: '';
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.6;
+}
+
+.repo-stars {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--fg-muted);
+  letter-spacing: 0.06em;
+}
+
+.repos-loading {
+  grid-column: 1/-1;
+  padding: 3rem;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--fg-muted);
+  letter-spacing: 0.1em;
+}
+
+/* ── Skills ── */
+#skills { padding: 7rem 0; border-top: 1px solid var(--border); }
+
+.skills-layout {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 5rem;
+  margin-top: 2.5rem;
+}
+
+.skills-intro h2 {
+  font-family: var(--serif);
+  font-size: 2.5rem;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+}
+
+.skills-intro p { font-size: 0.855rem; color: var(--fg-muted); line-height: 1.75; }
+
+.skills-groups { display: flex; flex-direction: column; gap: 2rem; }
+
+.skill-group-label {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+
+.skill-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+.skill-chip {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  padding: 0.4rem 0.85rem;
+  border: 1px solid var(--border-strong);
+  color: var(--fg-2);
+  background: var(--bg-card);
+  transition: border-color 0.2s, color 0.2s, background 0.2s, box-shadow 0.2s;
+  cursor: default;
+}
+
+.skill-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(0,255,136,0.05);
+  box-shadow: 0 0 12px rgba(0,255,136,0.08);
+}
+
+.skill-chip.hl {
+  border-color: rgba(0,255,136,0.3);
+  color: var(--accent);
+}
+
+/* ── Contact ── */
+#contact { padding: 7rem 0; border-top: 1px solid var(--border); }
+
+.contact-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 5rem;
+  align-items: start;
+}
+
+.contact-text h2 {
+  font-family: var(--serif);
+  font-size: 3rem;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  margin-bottom: 1rem;
+}
+
+.contact-text p { color: var(--fg-muted); font-size: 0.875rem; line-height: 1.75; margin-bottom: 2rem; }
+
+.contact-links { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 2rem; }
+
+.contact-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  text-decoration: none;
+  color: var(--fg-1);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.contact-link:hover { border-color: var(--accent); background: rgba(0,255,136,0.04); }
+.contact-link:hover .cl-arrow { transform: translate(3px,-3px); color: var(--accent); }
+
+.cl-left { display: flex; align-items: center; gap: 0.85rem; }
+
+.cl-icon {
+  width: 2rem; height: 2rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 0.72rem; color: var(--accent);
+}
+
+.cl-lbl { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.1em; color: var(--fg-muted); text-transform: uppercase; }
+.cl-val { font-size: 0.85rem; font-weight: 500; }
+.cl-arrow { color: var(--fg-muted); font-family: var(--mono); font-size: 0.8rem; transition: transform 0.2s, color 0.2s; }
+
+.proj-gh-link {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  text-decoration: none;
+  border: 1px solid rgba(0,255,136,0.3);
+  padding: 0.2rem 0.55rem;
+  transition: background 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
+  align-self: center;
+}
+.proj-gh-link:hover {
+  background: rgba(0,255,136,0.08);
+  box-shadow: 0 0 10px rgba(0,255,136,0.15);
+}
+
+/* ── Contact form ── */
+.contact-form { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+.form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+
+.form-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.form-input, .form-textarea {
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  color: var(--fg-1);
+  font-family: var(--sans);
+  font-size: 0.855rem;
+  padding: 0.75rem 1rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  resize: none;
+  width: 100%;
+}
+
+.form-input:focus, .form-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0,255,136,0.07);
+}
+
+.form-input::placeholder, .form-textarea::placeholder { color: var(--fg-muted); }
+
+.form-textarea { min-height: 120px; }
+
+.form-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem;
+  background: var(--accent);
+  color: #030804;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  transition: box-shadow 0.25s, opacity 0.2s;
+}
+
+.form-submit:hover { box-shadow: 0 0 30px rgba(0,255,136,0.3); opacity: 0.9; }
+
+.form-success {
+  display: none;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(0,255,136,0.3);
+  background: rgba(0,255,136,0.05);
+  text-align: center;
+}
+
+/* ── Footer ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 1.75rem 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  z-index: 1;
+}
+
+footer p { font-family: var(--mono); font-size: 0.62rem; color: var(--fg-muted); letter-spacing: 0.1em; }
+
+/* ── Reveal animation ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px) scale(0.98);
+  transition: opacity 0.75s var(--ease), transform 0.75s var(--ease);
+}
+.reveal.visible { opacity: 1; transform: translateY(0) scale(1); }
+.reveal-delay-1 { transition-delay: 0.08s; }
+.reveal-delay-2 { transition-delay: 0.16s; }
+
+/* ── Parallax perf: contain sections so they form opaque layers over hero ── */
+#accomplishments,
+#projects,
+#github,
+#experience,
+#skills,
+#contact,
+footer {
+  isolation: isolate; /* ensures solid paint on top of sticky hero */
+}
+
+/* ── Keyframes ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--accent); }
+  50%       { opacity: 0.5; box-shadow: 0 0 4px var(--accent); }
+}
+
+/* ── Mobile ── */
+@media (max-width: 900px) {
+  .nav-links { display: none; }
+  .skills-layout, .contact-layout { grid-template-columns: 1fr; gap: 2.5rem; }
+  .repos-grid { grid-template-columns: 1fr 1fr; }
+  .acc-grid { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  .project-card { grid-template-columns: 2rem 1fr; }
+  .project-metrics-col { display: none; }
+  .hero-top { flex-direction: column-reverse; gap: 2.5rem; align-items: flex-start; }
+  .hero-photo-frame { width: 140px; height: 140px; }
+}
+
+@media (max-width: 600px) {
+  .repos-grid { grid-template-columns: 1fr; }
+  .hero-stats { flex-direction: column; }
+  .stat { border-right: none; border-bottom: 1px solid var(--border); }
+}
+</style>
+</head>
+<body>
+
+<canvas id="grid-canvas"></canvas>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<!-- ── Nav ── -->
+<nav>
+  <a href="#hero" class="nav-brand">itamar.dev</a>
+  <ul class="nav-links">
+    <li><a href="#accomplishments">Awards</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#github">GitHub</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- ── Hero ── -->
+<section id="hero">
+  <div class="hero-inner">
+    <div class="hero-top">
+      <div class="hero-text">
+        <div class="hero-prompt"><span class="prompt-char">$</span> whoami</div>
+        <h1 class="hero-name">
+          Itamar<br/>
+          <span class="line-2">Amsalem</span>
+        </h1>
+        <p class="hero-tagline">Turning ideas into <span class="glow">implementation.</span></p>
+        <p class="hero-desc">
+          Hey! I'm a Math &amp; CS student at Rutgers who loves building at the intersection of quant finance, machine learning, and software engineering; from live trading bots to production ML pipelines. Always working on something new.
+        </p>
+        <div class="hero-ctas">
+          <a href="#projects" class="btn-primary">View Projects →</a>
+          <a href="https://github.com/itamaramsalem" target="_blank" class="btn-ghost">GitHub ↗</a>
+          <a href="uploads/Itamar Amsalem Resume-8735dd27.pdf" target="_blank" class="btn-ghost">Resume ↗</a>
+        </div>
+      </div>
+      <div class="hero-photo-wrap">
+        <div class="hero-photo-frame">
+          <img src="uploads/profile.jpg" alt="Itamar Amsalem" class="hero-photo"/>
+        </div>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-val">3.61</div>
+        <div class="stat-label">GPA · Dean's List</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val">$1M</div>
+        <div class="stat-label">Notional Traded</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val">163K+</div>
+        <div class="stat-label">Reviews Analyzed</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Accomplishments ── -->
+<section id="accomplishments">
+  <div class="section-inner">
+    <p class="section-label reveal">Accomplishments</p>
+    <div class="acc-grid reveal">
+
+      <div class="acc-card">
+        <div class="acc-rank">1st</div>
+        <div class="acc-title">Rutgers BITS × IBM Datathon</div>
+        <div class="acc-event">GSD.AI · February 2026 · 24-hour build</div>
+        <p class="acc-desc">
+          Built an end-to-end AI restaurant survival and market intelligence platform in 24 hours.
+          XGBoost classifier at 91.9% accuracy. Ranked concepts across all 91 NJ zip codes via
+          a 6-component Match Score algorithm.
+        </p>
+        <div class="acc-sponsors">
+          <span class="sponsor-tag">#Datathon</span>
+          <span class="sponsor-tag">#AI</span>
+          <span class="sponsor-tag">#MachineLearning</span>
+          <span class="sponsor-tag">#IBM</span>
+          <span class="sponsor-tag">#HackRutgers</span>
+        </div>
+      </div>
+
+      <div class="acc-card">
+        <div class="acc-rank">1st</div>
+        <div class="acc-title">Rutgers QFC Algorithmic Trading Competition</div>
+        <div class="acc-event">Trade the Knight · April 2026 · Live trading · 1st / 80 traders</div>
+        <p class="acc-desc">
+          Deployed two concurrent stat-arb bots live against a Rust-based exchange with realistic
+          latency. Achieved ~100% return on $1M notional with a 2.26 Sharpe ratio over 8 hours of
+          live trading.
+        </p>
+        <div class="acc-sponsors">
+          <span class="sponsor-tag">#AlgoTrading</span>
+          <span class="sponsor-tag">#StatArb</span>
+          <span class="sponsor-tag">#Citadel</span>
+          <span class="sponsor-tag">#Optiver</span>
+          <span class="sponsor-tag">#QuantFinance</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Projects ── -->
+<section id="projects">
+  <div class="section-inner">
+    <p class="section-label reveal">Projects</p>
+    <div class="projects-list reveal">
+
+      <div class="project-card">
+        <div class="project-num">01</div>
+        <div class="project-main">
+          <div class="project-header">
+            <h3 class="project-name">GSD.AI</h3>
+            <span class="project-badge">🏆 1st Place · Datathon</span>
+            <a href="https://github.com/djs525/bits-datathon" target="_blank" class="proj-gh-link">GitHub ↗</a>
+          </div>
+          <div class="project-context">Rutgers BITS × IBM · Feb 2026 · Built in 24h</div>
+          <p class="project-desc">
+            XGBoost binary classifier trained on 40+ day-zero features (ZIP market context, concept attributes, 23 cuisine flags) with no-leakage evaluation and SHAP TreeExplainer. Computed per-ZIP Opportunity Scores via 20km Haversine spillover analysis across 163K+ Yelp reviews. Deployed 7-stage FastAPI + React pipeline with a 6-component Match Score algorithm ranking restaurant concepts across all 91 NJ zip codes.
+          </p>
+          <div class="project-tags">
+            <span class="tag">XGBoost</span><span class="tag">SHAP</span><span class="tag">FastAPI</span>
+            <span class="tag">React</span><span class="tag">scikit-learn</span><span class="tag">Haversine</span><span class="tag">Yelp API</span>
+          </div>
+        </div>
+        <div class="project-metrics-col">
+          <div class="metric-block">
+            <div class="metric-val">91.9%</div>
+            <div class="metric-label">Accuracy</div>
+          </div>
+          <div class="metric-block">
+            <div class="metric-val">0.82</div>
+            <div class="metric-label">ROC-AUC</div>
+          </div>
+          <div class="metric-block">
+            <div class="metric-val">24h</div>
+            <div class="metric-label">Build Time</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-num">02</div>
+        <div class="project-main">
+          <div class="project-header">
+            <h3 class="project-name">Trade the Knight</h3>
+            <span class="project-badge">🏆 1st Place · 80 Traders</span>
+          </div>
+          <div class="project-context">Rutgers QFC · April 2026 · Citadel / Optiver Sponsored</div>
+          <p class="project-desc">
+            Developed and deployed two concurrent stat-arb bots using pairs trading strategies, trading live against a proprietary Rust-based exchange with a custom matching engine, realistic latency, and live order books. Edge driven by disciplined position sizing, risk controls, and multi-strategy coordination across 8 hours of live trading on $1M notional.
+          </p>
+          <div class="project-tags">
+            <span class="tag">Stat-Arb</span><span class="tag">Pairs Trading</span><span class="tag">Python</span>
+            <span class="tag">Live Trading</span><span class="tag">Risk Mgmt</span><span class="tag">Order Books</span>
+          </div>
+        </div>
+        <div class="project-metrics-col">
+          <div class="metric-block">
+            <div class="metric-val">~100%</div>
+            <div class="metric-label">Return</div>
+          </div>
+          <div class="metric-block">
+            <div class="metric-val">2.26</div>
+            <div class="metric-label">Sharpe</div>
+          </div>
+          <div class="metric-block">
+            <div class="metric-val">1/80</div>
+            <div class="metric-label">Rank</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-num">03</div>
+        <div class="project-main">
+          <div class="project-header">
+            <h3 class="project-name">S&amp;P 500 Return Predictor</h3>
+            <span class="project-badge">Personal Project</span>
+            <a href="https://github.com/itamaramsalem/sp500Prediction" target="_blank" class="proj-gh-link">GitHub ↗</a>
+          </div>
+          <div class="project-context">ML Trading Strategy · January 2026</div>
+          <p class="project-desc">
+            Applied supervised learning (Random Forest, Logistic Regression) to predict S&amp;P 500 return direction. Implemented a walk-forward backtesting framework to prevent lookahead bias. Features capture price momentum across 2–1000 day horizons. Benchmarked via precision, AUC-ROC, and out-of-sample Sharpe ratio to evaluate predictive robustness.
+          </p>
+          <div class="project-tags">
+            <span class="tag">Random Forest</span><span class="tag">Logistic Regression</span>
+            <span class="tag">scikit-learn</span><span class="tag">pandas</span><span class="tag">Backtesting</span><span class="tag">AUC-ROC</span>
+          </div>
+        </div>
+        <div class="project-metrics-col">
+          <div class="metric-block">
+            <div class="metric-val">Walk-Fwd</div>
+            <div class="metric-label">Backtest</div>
+          </div>
+          <div class="metric-block">
+            <div class="metric-val">2–1000d</div>
+            <div class="metric-label">Horizons</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-num">04</div>
+        <div class="project-main">
+          <div class="project-header">
+            <h3 class="project-name">BudgetWise</h3>
+            <span class="project-badge">HackRU Fall 2025</span>
+            <a href="https://github.com/iddobarnoon/BudgetWise" target="_blank" class="proj-gh-link">GitHub ↗</a>
+          </div>
+          <div class="project-context">AI Personal Finance Assistant · Hackathon · Fall 2025</div>
+          <p class="project-desc">
+            AI-powered personal finance app built for HackRU. Chat with an AI advisor for personalized financial guidance, track expenses with smart categorization, and get real-time purchase recommendations. 4-microservice FastAPI backend with OpenAI GPT-4, Supabase auth, and a Next.js 15 frontend — fully containerized with Docker Compose.
+          </p>
+          <div class="project-tags">
+            <span class="tag">Next.js 15</span><span class="tag">FastAPI</span><span class="tag">OpenAI</span>
+            <span class="tag">Supabase</span><span class="tag">Docker</span><span class="tag">TypeScript</span>
+          </div>
+        </div>
+        <div class="project-metrics-col">
+          <div class="metric-block">
+            <div class="metric-val">4</div>
+            <div class="metric-label">Microservices</div>
+          </div>
+          <div class="metric-block">
+            <div class="metric-val">GPT-4</div>
+            <div class="metric-label">AI Engine</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── GitHub Repos ── -->
+<section id="github">
+  <div class="section-inner">
+    <p class="section-label reveal">GitHub · <a href="https://github.com/itamaramsalem" target="_blank" style="color:var(--accent);text-decoration:none;font-size:0.62rem;letter-spacing:0.1em">github.com/itamaramsalem ↗</a></p>
+    <div class="repos-grid reveal" id="repos-grid">
+      <div class="repos-loading">fetching repos<span id="dots">...</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Experience ── -->
+<section id="experience" style="padding:7rem 0;border-top:1px solid var(--border);">
+  <div class="section-inner">
+    <p class="section-label reveal">Experience &amp; Leadership</p>
+    <div class="reveal" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);margin-top:2.5rem;">
+
+      <div style="background:var(--bg);padding:2rem;transition:background 0.2s;" onmouseover="this.style.background='var(--bg-card)'" onmouseout="this.style.background='var(--bg)'">
+        <div style="font-family:var(--mono);font-size:0.62rem;letter-spacing:0.12em;color:var(--accent);margin-bottom:0.75rem;">2026 – Present</div>
+        <div style="font-family:var(--serif);font-size:1.2rem;font-weight:500;letter-spacing:-0.02em;margin-bottom:0.25rem;">Founder</div>
+        <div style="font-size:0.82rem;color:var(--fg-muted);margin-bottom:1.25rem;">CAP-X · Rutgers University</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:0.6rem;">
+          <li style="font-size:0.82rem;color:var(--fg-2);line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent);font-family:var(--mono);">›</span>Building a student org connecting Rutgers students with real-world practitioners via candid, interview-style speaker sessions across finance, consulting, entrepreneurship, tech &amp; marketing</li>
+          <li style="font-size:0.82rem;color:var(--fg-2);line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent);font-family:var(--mono);">›</span>Open access — no applications, interviews, or dues; any student regardless of major</li>
+          <li style="font-size:0.82rem;color:var(--fg-2);line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent);font-family:var(--mono);">›</span>Mission: honest dialogue + high-signal exposure over polished corporate messaging</li>
+        </ul>
+      </div>
+
+      <div style="background:var(--bg);padding:2rem;transition:background 0.2s;" onmouseover="this.style.background='var(--bg-card)'" onmouseout="this.style.background='var(--bg)'">
+        <div style="font-family:var(--mono);font-size:0.62rem;letter-spacing:0.12em;color:var(--accent);margin-bottom:0.75rem;">Jul 2025 – Sep 2025</div>
+        <div style="font-family:var(--serif);font-size:1.2rem;font-weight:500;letter-spacing:-0.02em;margin-bottom:0.25rem;">Software Development Intern</div>
+        <div style="font-size:0.82rem;color:var(--fg-muted);margin-bottom:1.25rem;">Aspire Healthcare · Lakewood, NJ</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:0.6rem;">
+          <li style="font-size:0.82rem;color:var(--fg-2);line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent);font-family:var(--mono);">›</span>Engineered Python ETL pipelines consolidating payroll &amp; HPPD data across 200+ facilities and 10,000+ employees</li>
+          <li style="font-size:0.82rem;color:var(--fg-2);line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent);font-family:var(--mono);">›</span>Built HPPD analyzer cutting review time from 3 hours to 30 minutes</li>
+          <li style="font-size:0.82rem;color:var(--fg-2);line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent);font-family:var(--mono);">›</span>Developed agentic ML pipelines on time-series staffing data to forecast labor costs and automate budget planning</li>
+        </ul>
+      </div>
+
+      <div style="background:var(--bg);padding:2rem;transition:background 0.2s;" onmouseover="this.style.background='var(--bg-card)'" onmouseout="this.style.background='var(--bg)'">
+        <div style="font-family:var(--mono);font-size:0.62rem;letter-spacing:0.12em;color:var(--accent);margin-bottom:0.75rem;">Sep 2024 – May 2028</div>
+        <div style="font-family:var(--serif);font-size:1.2rem;font-weight:500;letter-spacing:-0.02em;margin-bottom:0.25rem;">B.S. Mathematics · B.A. Computer Science</div>
+        <div style="font-size:0.82rem;color:var(--fg-muted);margin-bottom:1rem;">Rutgers University · New Brunswick, NJ</div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem;">
+          <span style="font-family:var(--mono);font-size:0.62rem;letter-spacing:0.1em;padding:0.3rem 0.65rem;border:1px solid rgba(0,255,136,0.3);color:var(--accent);">GPA 3.61</span>
+          <span style="font-family:var(--mono);font-size:0.62rem;letter-spacing:0.1em;padding:0.3rem 0.65rem;border:1px solid var(--border-strong);color:var(--fg-muted);">Dean's List (All Semesters)</span>
+        </div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:0.6rem;">
+          <li style="font-size:0.82rem;color:var(--fg-2);line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent);font-family:var(--mono);">›</span>Probability Theory, Statistics, Linear Algebra, Multivariable Calculus, Differential Equations</li>
+          <li style="font-size:0.82rem;color:var(--fg-2);line-height:1.6;padding-left:1rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent);font-family:var(--mono);">›</span>Rutgers QFC · Alpha Epsilon Pi (Academic Chair) · Poker Club · CAP-X Founder</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Skills ── -->
+<section id="skills">
+  <div class="section-inner">
+    <div class="skills-layout reveal">
+      <div class="skills-intro">
+        <p class="section-label">Skills</p>
+        <h2>The stack behind the work.</h2>
+        <p>Quantitative by training, engineering by practice. I move fast across the full pipeline — from raw data to deployed model to production system.</p>
+      </div>
+      <div class="skills-groups">
+        <div>
+          <div class="skill-group-label">Languages</div>
+          <div class="skill-chips">
+            <span class="skill-chip hl">Python</span>
+            <span class="skill-chip">Java</span>
+            <span class="skill-chip">C</span>
+            <span class="skill-chip">SQL</span>
+          </div>
+        </div>
+        <div>
+          <div class="skill-group-label">ML / Quantitative</div>
+          <div class="skill-chips">
+            <span class="skill-chip hl">XGBoost</span>
+            <span class="skill-chip hl">scikit-learn</span>
+            <span class="skill-chip">SHAP</span>
+            <span class="skill-chip">pandas</span>
+            <span class="skill-chip">NumPy</span>
+            <span class="skill-chip">LLM APIs</span>
+            <span class="skill-chip">Regression Analysis</span>
+            <span class="skill-chip">Classification Models</span>
+            <span class="skill-chip">Time-Series Analysis</span>
+            <span class="skill-chip">Feature Engineering</span>
+            <span class="skill-chip">Backtesting</span>
+            <span class="skill-chip">Cross-Validation</span>
+            <span class="skill-chip">Risk Modeling</span>
+            <span class="skill-chip">Stat-Arb</span>
+          </div>
+        </div>
+        <div>
+          <div class="skill-group-label">Engineering</div>
+          <div class="skill-chips">
+            <span class="skill-chip hl">FastAPI</span>
+            <span class="skill-chip">Flask</span>
+            <span class="skill-chip">React</span>
+            <span class="skill-chip">Docker</span>
+            <span class="skill-chip">Git</span>
+            <span class="skill-chip">Jupyter</span>
+            <span class="skill-chip">ETL Pipelines</span>
+            <span class="skill-chip">Excel</span>
+          </div>
+        </div>
+        <div>
+          <div class="skill-group-label">Mathematics</div>
+          <div class="skill-chips">
+            <span class="skill-chip">Probability Theory</span>
+            <span class="skill-chip">Statistics</span>
+            <span class="skill-chip">Linear Algebra</span>
+            <span class="skill-chip">Multivariable Calculus</span>
+            <span class="skill-chip">Differential Equations</span>
+            <span class="skill-chip">Linear Optimization</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Contact ── -->
+<section id="contact">
+  <div class="section-inner">
+    <div class="contact-layout reveal">
+      <div>
+        <p class="section-label">Contact</p>
+        <h2 class="contact-text" style="font-family:var(--serif);font-size:3rem;font-weight:500;letter-spacing:-0.04em;line-height:1.05;margin-bottom:1rem;">Let's build<br/>something.</h2>
+        <p style="color:var(--fg-muted);font-size:0.875rem;line-height:1.75;margin-bottom:2rem;">
+          Always happy to connect, whether it's an internship, a research collab, or just a cool problem to nerd out about. Shoot me a message and I'll get back to you quickly!
+        </p>
+        <div class="contact-links">
+          <a href="mailto:amsalemitamar@gmail.com" class="contact-link">
+            <div class="cl-left">
+              <div class="cl-icon">✉</div>
+              <div>
+                <div class="cl-lbl">Email</div>
+                <div class="cl-val">amsalemitamar@gmail.com</div>
+              </div>
+            </div>
+            <div class="cl-arrow">↗</div>
+          </a>
+          <a href="https://github.com/itamaramsalem" target="_blank" class="contact-link">
+            <div class="cl-left">
+              <div class="cl-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.164 6.839 9.49.5.09.682-.218.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.157-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.026A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.026 2.747-1.026.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.577.688.48C19.138 20.161 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+              </div>
+              <div>
+                <div class="cl-lbl">GitHub</div>
+                <div class="cl-val">github.com/itamaramsalem</div>
+              </div>
+            </div>
+            <div class="cl-arrow">↗</div>
+          </a>
+          <a href="https://linkedin.com/in/itamarams/" target="_blank" class="contact-link">
+            <div class="cl-left">
+              <div class="cl-icon" style="font-weight:700;font-size:0.8rem;">in</div>
+              <div>
+                <div class="cl-lbl">LinkedIn</div>
+                <div class="cl-val">linkedin.com/in/itamarams</div>
+              </div>
+            </div>
+            <div class="cl-arrow">↗</div>
+          </a>
+          <a href="https://instagram.com/itamarams06" target="_blank" class="contact-link">
+            <div class="cl-left">
+              <div class="cl-icon" style="font-size:0.65rem;letter-spacing:0;">IG</div>
+              <div>
+                <div class="cl-lbl">Instagram</div>
+                <div class="cl-val">@itamarams06</div>
+              </div>
+            </div>
+            <div class="cl-arrow">↗</div>
+          </a>
+        </div>
+      </div>
+
+      <div class="contact-form" id="contact-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Name</label>
+            <input class="form-input" type="text" placeholder="Your name" id="f-name"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input class="form-input" type="email" placeholder="your@email.com" id="f-email"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Subject</label>
+          <input class="form-input" type="text" placeholder="Internship / Collaboration / Just saying hi" id="f-subject"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Message</label>
+          <textarea class="form-textarea" placeholder="What's on your mind?" id="f-message"></textarea>
+        </div>
+        <button class="form-submit" onclick="handleSubmit()">Send Message →</button>
+        <div class="form-success" id="form-success">✓ &nbsp;Message sent — I'll get back to you soon.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <p>© 2026 Itamar Amsalem · Rutgers University</p>
+  <p style="color:var(--accent);text-shadow:0 0 10px rgba(0,255,136,0.4);">itamaramsalem.github.io</p>
+</footer>
+
+<script>
+// ── Animated grid canvas ──
+(function() {
+  const canvas = document.getElementById('grid-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const spacing = 60;
+    ctx.strokeStyle = '#1a211c';
+    ctx.lineWidth = 1;
+
+    for (let x = 0; x <= W; x += spacing) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, H);
+      ctx.stroke();
+    }
+    for (let y = 0; y <= H; y += spacing) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(W, y);
+      ctx.stroke();
+    }
+
+    // Corner dots
+    ctx.fillStyle = 'rgba(0,255,136,0.35)';
+    for (let x = 0; x <= W; x += spacing) {
+      for (let y = 0; y <= H; y += spacing) {
+        ctx.beginPath();
+        ctx.arc(x, y, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+  draw();
+  window.addEventListener('resize', draw);
+})();
+
+// ── Scroll reveal ──
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── Active nav ──
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll', () => {
+  let cur = '';
+  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 100) cur = s.id; });
+  navLinks.forEach(a => {
+    const active = a.getAttribute('href') === '#' + cur;
+    a.classList.toggle('active', active);
+  });
+}, { passive: true });
+
+// ── GitHub repos ──
+async function fetchRepos() {
+  const dotsEl = document.getElementById('dots');
+  let d = 0;
+  const dotsInterval = setInterval(() => {
+    d = (d + 1) % 4;
+    if (dotsEl) dotsEl.textContent = '.'.repeat(d || 1);
+  }, 400);
+
+  try {
+    const res = await fetch('https://api.github.com/users/itamaramsalem/repos?sort=updated&per_page=9');
+    clearInterval(dotsInterval);
+    if (!res.ok) throw new Error('API error');
+    const repos = await res.json();
+    const grid = document.getElementById('repos-grid');
+    grid.innerHTML = '';
+
+    const langColors = {
+      Python: '#3572A5', JavaScript: '#f1e05a', TypeScript: '#3178c6',
+      Java: '#b07219', C: '#555555', HTML: '#e34c26', Rust: '#dea584'
+    };
+
+    const filtered = repos.filter(r => !r.fork).slice(0, 9);
+    if (!filtered.length) {
+      grid.innerHTML = '<div class="repos-loading">No public repos found.</div>';
+      return;
+    }
+
+    filtered.forEach(repo => {
+      const langColor = repo.language ? (langColors[repo.language] || '#00ff88') : '#5a6b60';
+      const card = document.createElement('a');
+      card.href = repo.html_url;
+      card.target = '_blank';
+      card.className = 'repo-card';
+      card.innerHTML = `
+        <span class="repo-arrow">↗</span>
+        <div class="repo-name">${repo.name}</div>
+        <div class="repo-desc">${repo.description || 'No description'}</div>
+        <div class="repo-meta">
+          ${repo.language ? `<span class="repo-lang" style="--lc:${langColor}">${repo.language}</span>` : ''}
+          ${repo.stargazers_count > 0 ? `<span class="repo-stars">★ ${repo.stargazers_count}</span>` : ''}
+          <span class="repo-stars" style="margin-left:auto">${repo.updated_at ? new Date(repo.updated_at).toLocaleDateString('en-US',{month:'short',year:'numeric'}) : ''}</span>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  } catch (err) {
+    clearInterval(dotsInterval);
+    document.getElementById('repos-grid').innerHTML = '<div class="repos-loading" style="color:var(--fg-muted)">Could not load repos — <a href="https://github.com/itamaramsalem" target="_blank" style="color:var(--accent)">view on GitHub ↗</a></div>';
+  }
+}
+
+fetchRepos();
+
+// ── Contact form ──
+function handleSubmit() {
+  const name = document.getElementById('f-name').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  const msg = document.getElementById('f-message').value.trim();
+  if (!name || !email || !msg) return;
+
+  const btn = document.querySelector('.form-submit');
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+
+  // Simulate send (replace with real endpoint if needed)
+  setTimeout(() => {
+    document.getElementById('contact-form').style.opacity = '0.4';
+    document.getElementById('contact-form').style.pointerEvents = 'none';
+    document.getElementById('form-success').style.display = 'block';
+    btn.textContent = 'Send Message →';
+    btn.disabled = false;
+  }, 800);
+}
+
+// ── Dots animation ──
+const dotsEl = document.getElementById('dots');
+if (dotsEl) {
+  let n = 0;
+  setInterval(() => {
+    n = (n+1)%4;
+    dotsEl.textContent = '.'.repeat(n||1);
+  }, 400);
+}
+</script>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════
+   Parallax Engine
+   ────────────────────────────────────────────────────────────────────
+   Architecture
+   ─ One passive scroll listener writes a target value only (no DOM)
+   ─ One rAF loop reads target, exp-decays toward it, writes DOM once
+   ─ All transforms batched in a single rAF → zero layout thrashing
+   ─ Exponential-decay lerp is frame-rate independent (unlike * 0.1)
+   ─ GPU path: every transform includes translateZ(0) for compositor
+   ─ will-change applied after CSS animations settle (~1.6 s)
+   ─ Fully disabled for prefers-reduced-motion & touch/mobile
+   ════════════════════════════════════════════════════════════════════ */
+(function initParallax() {
+  'use strict';
+
+  /* ── Guards ── */
+  const motionMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (motionMQ.matches) return;
+
+  // Disable on touch devices: native momentum scroll already feels smooth;
+  // adding JS interpolation on top causes "double-inertia" jank on mobile.
+  if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) return;
+
+  /* ── Elements ── */
+  const hero      = document.getElementById('hero');
+  const heroInner = document.querySelector('.hero-inner');
+  const orb1      = document.querySelector('.orb-1');
+  const orb2      = document.querySelector('.orb-2');
+
+  if (!heroInner) return;
+
+  /* ── Layer config ──────────────────────────────────────────────────
+     getTY(scrollY) → translateY value in pixels for that element.
+
+     hero is position:sticky so heroInner moving UP inside it creates
+     the "content rises and fades" Apple-scroll effect.
+
+     orb1/orb2 are position:fixed. Moving them in opposite directions
+     adds depth: orb1 drifts toward top, orb2 drifts toward bottom.
+  ── */
+  const LAYERS = [
+    {
+      el:    heroInner,
+      getTY: sy => -(sy * 0.20),   // rises inside sticky hero (multi-layer depth)
+    },
+    {
+      el:    orb1,
+      getTY: sy => -(sy * 0.24),   // drifts up faster than hero content
+    },
+    {
+      el:    orb2,
+      getTY: sy =>  (sy * 0.13),   // drifts down — opposite direction, more depth
+    },
+  ].filter(({ el }) => el !== null);
+
+  /* ── Hero fade ─────────────────────────────────────────────────────
+     As sections slide over the sticky hero, fade the hero content out.
+     Starts fading at 25% of hero height scrolled, done at 75%.
+  ── */
+  function heroAlpha(sy) {
+    const h = hero ? hero.offsetHeight : window.innerHeight;
+    const t = (sy / h - 0.25) / (0.75 - 0.25);          // 0 → 1 over fade zone
+    return 1 - Math.min(Math.max(t, 0), 1);              // clamp to [0, 1]
+  }
+
+  /* ── Exp-decay interpolation ───────────────────────────────────────
+     Unlike lerp(a, b, 0.1) this is frame-rate independent:
+       next = target + (current - target) × e^(-stiffness × dt)
+     stiffness 4 = floaty/cinematic, 12 = snappy/responsive, 8 = balanced
+  ── */
+  const STIFFNESS = 8;
+  function expDecay(cur, tgt, dt) {
+    return tgt + (cur - tgt) * Math.exp(-STIFFNESS * dt);
+  }
+
+  /* ── State ── */
+  let targetY  = window.scrollY;
+  let currentY = targetY;
+  let rafId    = null;
+  let lastTs   = 0;
+
+  /* ── Render: batch all DOM writes ── */
+  function render(sy) {
+    LAYERS.forEach(({ el, getTY }) => {
+      el.style.transform = `translateY(${getTY(sy).toFixed(3)}px) translateZ(0)`;
+    });
+    heroInner.style.opacity = heroAlpha(sy).toFixed(4);
+  }
+
+  /* ── RAF loop ── */
+  function tick(ts) {
+    // dt: time since last frame in seconds, capped at 50ms (tab-switch recovery)
+    const dt  = lastTs ? Math.min((ts - lastTs) / 1000, 0.05) : 0.016;
+    lastTs    = ts;
+
+    currentY  = expDecay(currentY, targetY, dt);
+    render(currentY);
+
+    // Keep ticking until settled; then snap exact and yield the thread
+    if (Math.abs(currentY - targetY) > 0.05) {
+      rafId = requestAnimationFrame(tick);
+    } else {
+      render(targetY);
+      rafId = null;
+    }
+  }
+
+  /* ── Scroll listener: write target only, never touch DOM ── */
+  window.addEventListener('scroll', () => {
+    targetY = window.scrollY;
+    if (!rafId) {
+      lastTs = 0;             // reset dt so first frame after a pause isn't huge
+      rafId  = requestAnimationFrame(tick);
+    }
+  }, { passive: true });
+
+  /* ── Compositor promotion ──────────────────────────────────────────
+     Apply will-change only AFTER the page-load CSS keyframe animations
+     finish (~1.5 s). Setting it during an animation forces the browser
+     to create a compositor layer mid-animation → wasted work + flicker.
+  ── */
+  setTimeout(() => {
+    heroInner.style.willChange = 'transform, opacity';
+    if (orb1) orb1.style.willChange = 'transform';
+    if (orb2) orb2.style.willChange = 'transform';
+  }, 1700);
+
+  /* ── Live reduced-motion handler ───────────────────────────────────
+     If the user toggles the OS setting after load, cleanly tear down
+     all parallax state without a page reload.
+  ── */
+  motionMQ.addEventListener('change', ({ matches }) => {
+    if (!matches) return;
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    LAYERS.forEach(({ el }) => {
+      el.style.transform   = '';
+      el.style.willChange  = '';
+    });
+    heroInner.style.opacity   = '';
+    heroInner.style.willChange = '';
+  });
+
+})();
+
+/* ════════════════════════════════════════════════════════════════════
+   Section entry parallax — scale + translate on individual cards
+   ────────────────────────────────────────────────────────────────────
+   IntersectionObserver with staggered thresholds drives a CSS custom
+   property (--reveal-p) that controls scale and translateY via
+   transitions. No scroll listener needed — compositor handles it.
+   ════════════════════════════════════════════════════════════════════ */
+(function initCardParallax() {
+  'use strict';
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  // Cards that get the enhanced parallax entry (not the generic .reveal)
+  const cards = document.querySelectorAll('.acc-card, .project-card, .repo-card');
+  if (!cards.length) return;
+
+  // Multi-threshold so the observer fires at several points during entry,
+  // enabling a smooth ramp rather than a single snap.
+  const thresholds = [0, 0.15, 0.3, 0.5, 0.7, 1.0];
+
+  const cardObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      const { target, intersectionRatio, isIntersecting } = entry;
+      if (!isIntersecting) return;
+
+      // Map ratio to a [0,1] "revealed" progress
+      const p = Math.min(intersectionRatio / 0.5, 1); // fully revealed at 50% visible
+      target.style.transform = `translateY(${((1 - p) * 12).toFixed(2)}px) scale(${(0.97 + p * 0.03).toFixed(4)})`;
+      target.style.opacity   = (0.4 + p * 0.6).toFixed(4);
+
+      // Once fully visible, hand off to CSS and stop observing
+      if (p >= 1) {
+        target.style.transform = '';
+        target.style.opacity   = '';
+        cardObserver.unobserve(target);
+      }
+    });
+  }, { threshold: thresholds, rootMargin: '0px 0px -40px 0px' });
+
+  // Brief delay so cards don't fight with initial .reveal animations
+  setTimeout(() => {
+    cards.forEach(card => {
+      card.style.transition = 'transform 0.45s cubic-bezier(0.16,1,0.3,1), opacity 0.45s ease';
+      cardObserver.observe(card);
+    });
+  }, 200);
+})();
+</script>
+</body>
+</html>
