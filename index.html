@@ -1249,24 +1249,55 @@ window.addEventListener('scroll', () => {
 
 
 // ── Contact form ──
-function handleSubmit() {
-  const name = document.getElementById('f-name').value.trim();
-  const email = document.getElementById('f-email').value.trim();
-  const msg = document.getElementById('f-message').value.trim();
-  if (!name || !email || !msg) return;
+const FORMSPREE_ID = 'xreroyon';
+
+async function handleSubmit() {
+  const name    = document.getElementById('f-name').value.trim();
+  const email   = document.getElementById('f-email').value.trim();
+  const subject = document.getElementById('f-subject').value.trim();
+  const msg     = document.getElementById('f-message').value.trim();
+
+  if (!name || !email || !msg) {
+    // Shake empty required fields
+    ['f-name','f-email','f-message'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el.value.trim()) {
+        el.style.borderColor = '#ff4d6d';
+        setTimeout(() => el.style.borderColor = '', 1500);
+      }
+    });
+    return;
+  }
 
   const btn = document.querySelector('.form-submit');
   btn.textContent = 'Sending...';
   btn.disabled = true;
 
-  // Simulate send (replace with real endpoint if needed)
-  setTimeout(() => {
+  try {
+    const res = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body:    JSON.stringify({ name, email, subject, message: msg }),
+    });
+
+    if (!res.ok) throw new Error('server error');
+
+    // Success
     document.getElementById('contact-form').style.opacity = '0.4';
     document.getElementById('contact-form').style.pointerEvents = 'none';
     document.getElementById('form-success').style.display = 'block';
-    btn.textContent = 'Send Message →';
-    btn.disabled = false;
-  }, 800);
+  } catch (err) {
+    btn.textContent = 'Failed — try again';
+    btn.style.background = '#ff4d6d';
+    setTimeout(() => {
+      btn.textContent = 'Send Message →';
+      btn.style.background = '';
+      btn.disabled = false;
+    }, 2500);
+    return;
+  }
+
+  btn.disabled = false;
 }
 
 </script>
