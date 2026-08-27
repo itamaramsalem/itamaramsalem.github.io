@@ -741,7 +741,7 @@ footer {
 
 .exp-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 1px;
   background: var(--border);
   margin-top: 2.5rem;
@@ -1242,6 +1242,17 @@ footer {
   <div class="section-inner">
     <p class="section-label reveal">Experience, Leadership &amp; Education</p>
     <div class="exp-grid reveal">
+
+      <div class="exp-card">
+        <div class="exp-date">Jun 2026 – Aug 2026</div>
+        <div class="exp-title">Quantitative Research Intern</div>
+        <div class="exp-company">AQC Tech · Lakewood, NJ</div>
+        <ul class="exp-bullets">
+          <li>Built an ML pipeline forecasting BTC execution prices from live order-book data to power a large-order RFQ pricing strategy, reconstructing 100+ days of raw order-book history into a training-ready dataset from scratch</li>
+          <li>Engineered time-series features (rolling momentum, drawdown/drawup, z-score) and found a signal change that lifted the model's win rate against a strict baseline from ~1-3 to 7 of 25 held-out days; built a leak-proof evaluation framework (leave-one-day-out CV, baseline stress-testing) to catch misleadingly optimistic results before they shipped</li>
+          <li>Compared gradient-boosted trees, random forest, and neural network models on training dynamics, hyperparameter sensitivity, and compute tradeoffs, then ran sweeps to pick and stress-test the best-performing model</li>
+        </ul>
+      </div>
 
       <div class="exp-card">
         <div class="exp-date">2026 – Present</div>
